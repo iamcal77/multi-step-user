@@ -1,5 +1,4 @@
-# Vue & Express Personal and Business Details App
-
+# Multi-Step User Onboarding Flow
 This project is a simple web application that allows users to submit personal information (including a profile image) and business details (including a logo and document). The data is stored in a JSON file (`combined-data.json`), and the user can view a summary of the information they've submitted.
 
 ## Features
