@@ -1,0 +1,15 @@
+{
+  "businessDetails": {
+    "name": "CAl",
+    "industry": "Retail",
+    "size": "medium",
+    "logo": "uploads\\23a815cfd1bb2b9b96b015a6098f16e3",
+    "document": "uploads\\59a786d9f2be32681308d6141af4556f"
+  },
+  "personalInfo": {
+    "name": "Calvin Kipkirui",
+    "email": "calvinkipkirui99@gmail.com",
+    "phone": "0715307457",
+    "image": "uploads\\39b2297ab4e7ed9f2d5147d9e8e3d235"
+  }
+}
