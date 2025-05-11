@@ -1,24 +1,33 @@
 <template>
-  <div class="summary-container">
-    <h2 class="title">Verification & Summary</h2>
-    <p class="description">Please verify your details and submit them.</p>
-
+  <div class="form-container">
+    <button @click="goBack" class="back-btn">Back</button>
+    <h1 class="form-title">Summary</h1>
     <ul class="summary-list">
-      <li><strong>Name:</strong> {{ formData.personalInfo?.name }}</li>
-      <li><strong>Email:</strong> {{ formData.personalInfo?.email }}</li>
-      <li><strong>Phone:</strong> {{ formData.personalInfo?.phone }}</li>
-      <li><strong>Business Name:</strong> {{ formData.businessDetails?.name }}</li>
-      <li><strong>Industry:</strong> {{ formData.businessDetails?.industry }}</li>
+      <li><strong>Personal Name:</strong> {{ formData.personalInfo?.name || 'N/A' }}</li>
+      <li><strong>Personal Email:</strong> {{ formData.personalInfo?.email || 'N/A' }}</li>
+      <li><strong>Personal Phone:</strong> {{ formData.personalInfo?.phone || 'N/A' }}</li>
+      <li><strong>Business Name:</strong> {{ formData.businessDetails?.name || 'N/A' }}</li>
+      <li><strong>Business Industry:</strong> {{ formData.businessDetails?.industry || 'N/A' }}</li>
     </ul>
 
-    <!-- Email Verification Section -->
-    <div v-if="isVerificationPending" class="verification-section">
-      <label for="verificationCode">Enter the verification code sent to your email:</label>
-      <input v-model="verificationCode" type="text" id="verificationCode" placeholder="Verification Code" />
+    <button @click="startVerification" class="submit-btn" v-if="!isVerificationPending && !isVerified">
+      Send Verification Code
+    </button>
+
+    <div v-if="isVerificationPending && !isVerified" class="verification-section">
+      <input v-model="verificationCode" type="text" placeholder="Enter verification code" />
       <button @click="verifyCode">Verify Code</button>
     </div>
 
-    <button v-if="!isVerificationPending" @click="submitForm" class="submit-btn">Submit</button>
+    <button 
+      @click="submitForm" 
+      class="submit-btn" 
+      v-if="isVerified" 
+      :disabled="loading"
+    >
+      <span v-if="loading" class="spinner"></span>
+      <span v-if="!loading">Submit Form</span>
+    </button>
   </div>
 </template>
 
@@ -41,125 +50,197 @@ const formData = ref({
 })
 
 const verificationCode = ref('')
-const sentVerificationCode = ref('123456')  // Mock code for simulation
 const isVerificationPending = ref(false)
+const isVerified = ref(false)
+const loading = ref(false)
 
-// Fetch the combined data from the server
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/get-details')
-    const data = await response.json()
+    const res = await fetch('http://localhost:3000/api/get-details')
+    const data = await res.json()
     formData.value = data
-  } catch (error) {
-    console.error('Error fetching data:', error)
+  } catch (err) {
+    toast.error('Error fetching data.')
+    console.error(err)
   }
 }
 
-// Fetch data when the component is mounted
+const startVerification = async () => {
+  const email = formData.value.personalInfo?.email
+  if (!email) {
+    toast.warning('No email found to send verification.')
+    return
+  }
+
+  try {
+    const res = await fetch('http://localhost:3000/api/send-verification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    })
+    const result = await res.json()
+
+    if (res.ok) {
+      toast.info('Verification code sent to email.')
+      isVerificationPending.value = true
+    } else {
+      toast.error(result.message || 'Failed to send code.')
+    }
+  } catch (err) {
+    toast.error('Server error while sending code.')
+    console.error(err)
+  }
+}
+
+const verifyCode = async () => {
+  const email = formData.value.personalInfo?.email
+  try {
+    const res = await fetch('http://localhost:3000/api/verify-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code: verificationCode.value })
+    })
+
+    const result = await res.json()
+    if (res.ok) {
+      toast.success('Email verified successfully!')
+      isVerified.value = true
+      isVerificationPending.value = false
+    } else {
+      toast.error(result.message || 'Invalid verification code.')
+    }
+  } catch (err) {
+    toast.error('Verification failed.')
+    console.error(err)
+  }
+}
+
+const submitForm = async () => {
+  if (!isVerified.value) {
+    toast.warning('Please verify your email first.')
+    return
+  }
+
+  loading.value = true
+
+  try {
+    // Simulate a form submission
+    setTimeout(() => {
+      toast.success('Form submitted successfully.')
+      loading.value = false
+    }, 2000)
+  } catch (err) {
+    loading.value = false
+    toast.error('Form submission failed.')
+    console.error(err)
+  }
+}
+
+const goBack = () => {
+  window.history.back()
+}
+
 onMounted(fetchData)
-
-const startVerification = () => {
-  isVerificationPending.value = true
-  // Simulate sending the verification code (e.g., sending an email)
-  toast.info('Verification code has been sent to your email.')
-}
-
-const verifyCode = () => {
-  if (verificationCode.value === sentVerificationCode.value) {
-    toast.success('Verification successful!')
-    isVerificationPending.value = false
-  } else {
-    toast.error('Invalid verification code. Please try again.')
-  }
-}
-
-const submitForm = () => {
-  alert('Form submitted!')
-  // Submit the form to a mock API or real API
-  toast.success('Form submitted successfully!')
-}
 </script>
 
 <style scoped>
-.summary-container {
+.form-container {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 2rem auto;
   padding: 2rem;
-  background-color: #fff;
-  border-radius: 0.5rem;
+  background: #fff;
+  border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #111827;
+.form-title {
   text-align: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
-.description {
-  font-size: 1rem;
-  color: #6b7280;
-  text-align: center;
-  margin-bottom: 2rem;
+.back-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }
 
 .summary-list {
-  padding-left: 0;
+  list-style: none;
+  padding: 0;
   margin-bottom: 2rem;
-  font-size: 1rem;
 }
 
 .summary-list li {
+  font-size: 1.1rem;
   margin-bottom: 0.75rem;
-  color: #374151;
+  color: #555;
 }
 
-.summary-list strong {
-  color: #111827;
+.summary-list li strong {
+  color: #333;
 }
 
 .submit-btn {
-  padding: 1rem;
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
   background-color: #2563eb;
   color: white;
-  font-weight: bold;
-  font-size: 1.125rem;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 6px;
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.2s ease;
 }
 
-.submit-btn:hover {
-  background-color: #1d4ed8;
-}
-
-.submit-btn:focus {
-  outline: none;
+.submit-btn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
 }
 
 .verification-section {
-  margin-bottom: 20px;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-@media (max-width: 600px) {
-  .summary-container {
-    padding: 1.5rem;
-  }
+.verification-section input {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 60%;
+  text-align: center;
+}
 
-  .title {
-    font-size: 1.75rem;
-  }
+.verification-section button {
+  padding: 0.6rem 1.2rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  .description {
-    font-size: 0.875rem;
-  }
+/* Spinner styling */
+.spinner {
+  border: 2px solid #fff;
+  border-top: 2px solid #2563eb;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
 
-  .submit-btn {
-    font-size: 1rem;
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

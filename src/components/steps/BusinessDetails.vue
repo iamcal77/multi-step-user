@@ -1,5 +1,6 @@
 <template>
   <div class="form-container">
+    <button @click="goBack" class="back-btn">Back</button>
     <h2 class="form-title">Business Details</h2>
     <form @submit.prevent="submitForm" class="form">
       <div class="form-group">
@@ -77,6 +78,11 @@ const submitForm = async () => {
     console.error('Form submission error:', error)
   }
 }
+
+// Function to navigate to the previous page
+const goBack = () => {
+  router.go(-1)
+}
 </script>
 
 <style scoped>
@@ -150,5 +156,16 @@ input[type="text"]:focus,
 
 .submit-btn:hover {
   background-color: #1d4ed8;
+}
+
+/* Back button styling */
+.back-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }
 </style>

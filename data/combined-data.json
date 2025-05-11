@@ -1,15 +1,15 @@
 {
   "businessDetails": {
     "name": "CAl",
-    "industry": "Retail",
-    "size": "medium",
-    "logo": "uploads\\23a815cfd1bb2b9b96b015a6098f16e3",
-    "document": "uploads\\59a786d9f2be32681308d6141af4556f"
+    "industry": "Technology",
+    "size": "small",
+    "logo": "uploads\\5d11aeb202653ddf607885cc72de793c",
+    "document": "uploads\\ccbc487b5ca04c5136538de8be02cd7a"
   },
   "personalInfo": {
     "name": "Calvin Kipkirui",
     "email": "calvinkipkirui99@gmail.com",
     "phone": "0715307457",
-    "image": "uploads\\39b2297ab4e7ed9f2d5147d9e8e3d235"
+    "image": "uploads\\3beedc9d87515cf76d244848d8d0530a"
   }
 }

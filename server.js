@@ -3,16 +3,16 @@ import multer from 'multer'
 import cors from 'cors'
 import fs from 'fs'
 import path from 'path'
+import nodemailer from 'nodemailer'
 
-// To get the directory name in ES modules
-const __dirname = path.resolve();  // This should correctly resolve the current directory
+const VERIFICATION_CODES = {}
 
+const __dirname = path.resolve();  
 const app = express()
 const upload = multer({ dest: 'uploads/' })
 
 app.use(cors())
 
-// Function to save data to a single JSON file
 const saveToJsonFile = (filePath, data) => {
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     let jsonData = {}
@@ -102,6 +102,49 @@ app.get('/api/get-details', (req, res) => {
       res.status(200).json(jsonData);
     });
   });
+  app.post('/api/send-verification', express.json(), async (req, res) => {
+    const { email } = req.body
+  
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    VERIFICATION_CODES[email] = code
+  
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'workerclass7447@gmail.com',         // Replace with your Gmail
+        pass: 'pbyr ehnd bebm hwrf',       // Use Gmail App Password (NOT your Gmail password)
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      debug: true,
+    })
+  
+    const mailOptions = {
+      from: '"My App" <workerclass7447@gmail.com>',
+      to: email,
+      subject: 'Your Verification Code',
+      text: `Your verification code is: ${code}`
+    }
+  
+    try {
+      await transporter.sendMail(mailOptions)
+      res.status(200).json({ message: 'Verification code sent!' })
+    } catch (error) {
+      console.error('Email send failed:', error)
+      res.status(500).json({ message: 'Failed to send email' })
+    }
+  })
+  
+  app.post('/api/verify-code', express.json(), (req, res) => {
+    const { email, code } = req.body
+    if (VERIFICATION_CODES[email] === code) {
+      delete VERIFICATION_CODES[email]
+      res.status(200).json({ message: 'Verification successful!' })
+    } else {
+      res.status(400).json({ message: 'Invalid verification code.' })
+    }
+  })
   
 app.listen(3000, () => {
   console.log('Server listening on http://localhost:3000')
