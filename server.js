@@ -26,7 +26,6 @@ const saveToJsonFile = (filePath, data) => {
       jsonData = JSON.parse(fileData)
     }
 
-    // Combine the new data into the existing data
     if (data.personalInfo) {
       jsonData.personalInfo = data.personalInfo
     }
@@ -44,7 +43,6 @@ const saveToJsonFile = (filePath, data) => {
   })
 }
 
-// Endpoint for handling personal info
 app.post('/api/personal-info', upload.single('profileImage'), (req, res) => {
   const { name, email, phone } = req.body
   const image = req.file
@@ -58,13 +56,11 @@ app.post('/api/personal-info', upload.single('profileImage'), (req, res) => {
 
   console.log('Received Personal Info:', personalInfo)
 
-  // Save to the same JSON file
   saveToJsonFile(path.join(__dirname, 'data', 'combined-data.json'), { personalInfo })
 
   res.status(200).json({ message: 'Personal info submitted successfully' })
 })
 
-// Endpoint for handling business details
 app.post('/api/business-details', upload.fields([{ name: 'logo' }, { name: 'document' }]), (req, res) => {
   const { name, industry, size } = req.body
   const logo = req.files['logo'] ? req.files['logo'][0] : null
@@ -82,13 +78,11 @@ app.post('/api/business-details', upload.fields([{ name: 'logo' }, { name: 'docu
   if (logo) console.log('Logo uploaded:', logo.path)
   if (document) console.log('Document uploaded:', document.path)
 
-  // Save to the same JSON file
   saveToJsonFile(path.join(__dirname, 'data', 'combined-data.json'), { businessDetails })
 
   res.status(200).json({ message: 'Business details submitted successfully' })
 })
 
-// Endpoint to get the combined data (personal info + business details)
 app.get('/api/get-details', (req, res) => {
     const filePath = path.join(__dirname, 'data', 'combined-data.json');
     
@@ -111,8 +105,8 @@ app.get('/api/get-details', (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'workerclass7447@gmail.com',         // Replace with your Gmail
-        pass: 'pbyr ehnd bebm hwrf',       // Use Gmail App Password (NOT your Gmail password)
+        user: 'workerclass7447@gmail.com',       
+        pass: 'pbyr ehnd bebm hwrf',       
       },
       tls: {
         rejectUnauthorized: false,

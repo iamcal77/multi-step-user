@@ -28,4 +28,6 @@ Make sure you have the following installed:
 
 1. Clone this repository (https://github.com/iamcal77/multi-step-user).
 2. Navigate to vue-onboarding:
-3. Run npm run dev and node server.js
+3. Run npm run dev and node server.
+
+## When you dont recieve email notification in your inbox check the spam folder

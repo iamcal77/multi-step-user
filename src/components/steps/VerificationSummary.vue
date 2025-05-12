@@ -8,6 +8,7 @@
       <li><strong>Personal Phone:</strong> {{ formData.personalInfo?.phone || 'N/A' }}</li>
       <li><strong>Business Name:</strong> {{ formData.businessDetails?.name || 'N/A' }}</li>
       <li><strong>Business Industry:</strong> {{ formData.businessDetails?.industry || 'N/A' }}</li>
+      <li><strong>Business Size:</strong> {{ formData.businessDetails?.size || 'N/A' }}</li>
     </ul>
 
     <button @click="startVerification" class="submit-btn" v-if="!isVerificationPending && !isVerified">
@@ -25,7 +26,7 @@
       v-if="isVerified" 
       :disabled="loading"
     >
-      <span v-if="loading" class="spinner"></span>
+      <span v-if="loading" class="loader"></span>
       <span v-if="!loading">Submit Form</span>
     </button>
   </div>
@@ -46,6 +47,7 @@ const formData = ref({
   businessDetails: {
     name: '',
     industry: '',
+    size: ''
   }
 })
 
@@ -168,6 +170,11 @@ onMounted(fetchData)
   border-radius: 6px;
   cursor: pointer;
   margin-bottom: 1rem;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #3e8e41;
 }
 
 .summary-list {
@@ -180,27 +187,47 @@ onMounted(fetchData)
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
   color: #555;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-list li:last-child {
+  border-bottom: none;
 }
 
 .summary-list li strong {
   color: #333;
+  display: inline-block;
+  min-width: 150px;
 }
 
 .submit-btn {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-top: 1rem;
-  padding: 0.6rem 1.2rem;
+  padding: 0.8rem 1.2rem;
   background-color: #2563eb;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   width: 100%;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .submit-btn:disabled {
-  background-color: #ddd;
+  background-color: #93c5fd;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .verification-section {
@@ -208,39 +235,67 @@ onMounted(fetchData)
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
+  width: 100%;
 }
 
 .verification-section input {
-  padding: 0.5rem;
-  margin-bottom: 1rem;
+  padding: 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
   width: 60%;
   text-align: center;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.verification-section input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .verification-section button {
-  padding: 0.6rem 1.2rem;
+  padding: 0.8rem 1.5rem;
   background-color: #2563eb;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
 }
 
-/* Spinner styling */
-.spinner {
-  border: 2px solid #fff;
-  border-top: 2px solid #2563eb;
+.verification-section button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Enhanced loader styling */
+.loader {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-  margin-right: 10px;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 12px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .verification-section input {
+    width: 80%;
+  }
 }
 </style>
